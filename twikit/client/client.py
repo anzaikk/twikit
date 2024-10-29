@@ -397,13 +397,6 @@ class Client:
         if flow.task_id == 'DenyLoginSubtask':
             raise TwitterException(flow.response['subtasks'][0]['cta']['secondary_text']['text'])
 
-        await flow.execute_task({
-            'subtask_id': 'AccountDuplicationCheck',
-            'check_logged_in_account': {
-                'link': 'AccountDuplicationCheck_false'
-            }
-        })
-
         if not flow.response['subtasks']:
             return
 
@@ -1238,7 +1231,10 @@ class Client:
             reply_to, attachment_url, community_id, share_with_followers,
             richtext_options, edit_tweet_id, limit_mode
         )
-        _result = response['data']['create_tweet']['tweet_results']
+        if is_note_tweet:
+            _result = response['data']['notetweet_create']['tweet_results']
+        else:
+            _result = response['data']['create_tweet']['tweet_results']
         if not _result:
             raise_exceptions_from_response(response['errors'])
             raise CouldNotTweet(
